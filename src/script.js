@@ -25,6 +25,7 @@ const parameters = {
 	directionalLight1PosX: 0,
 	directionalLight1AngleX: 0,
 	directionalLight1AngleY: 0,
+	directionalLight1HelperShow: true,
 	directionalLight1AngleZ: 0,
 	directionalLight1PosY: 0,
 	directionalLight1PosZ: 0,
@@ -33,6 +34,7 @@ const parameters = {
 	directionalLight2PosY: 0,
 	directionalLight2PosZ: 0,
 	directionalLight2AngleX: 0,
+	directionalLight2HelperShow: true,
 	directionalLight2AngleY: 0,
 	directionalLight2AngleZ: 0,
 
@@ -218,7 +220,10 @@ Jar
 
 ////////////////////////////Directional Light 1/////////////////////////////////////////
 const DirectionalLight1 = gui.addFolder('DirectionalLight 1 ');
-
+DirectionalLight1.close();
+DirectionalLight1.add(parameters, 'directionalLight1HelperShow').onChange(() => {
+	helper1.visible = !helper1.visible
+})
 DirectionalLight1
 	.add(parameters, 'directionalLight1AngleX', 0, Math.PI * 2, Math.PI * 2/ 360).onChange(() => {
 		directionalLight1.rotation.x = parameters.directionalLight1AngleX;
@@ -270,6 +275,10 @@ DirectionalLight2.add(parameters, 'directionalLight1AngleX', 0, Math.PI * 2, Mat
 	directionalLight1.rotation.x = parameters.directionalLight1AngleX;
 });
 
+
+DirectionalLight2.add(parameters, 'directionalLight2HelperShow').onChange(() => {
+	helper2.visible = !helper2.visible
+})
 DirectionalLight2
 	.add(parameters, 'directionalLight1AngleZ', 0, Math.PI * 2, Math.PI * 2/ 360).onChange(() => {
 	directionalLight1.rotation.z = parameters.directionalLight1AngleZ;
