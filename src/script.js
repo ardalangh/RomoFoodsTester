@@ -39,6 +39,9 @@ const parameters = {
 	jarPosX: 0,
 	jarPosY: 0,
 	jarPosZ: 0,
+	jarRotationX: 0,
+	jarRotationY: 0,
+	jarRotationZ: 0,
 
 	// directionalLight2PosY : 0,
 	// directionalLight3PosZ : 0,
@@ -66,6 +69,11 @@ const loader = new GLTFLoader();
 let jar;
 loader.load('./jar.glb', function (gltf) {
 	jar = gltf.scene;
+	jar.rotation.set(
+		parameters.jarRotationX,
+		parameters.jarRotationY,
+		parameters.jarRotationZ,
+	)
 	jar.scale.set(12, 12, 12);
 	scene.add(jar);
 
@@ -183,6 +191,29 @@ Jar
 	.onChange(() => {
 		jar.position.y = parameters.jarPosY;
 
+	});
+
+
+Jar
+	.add(parameters, 'jarRotationZ', 0, Math.PI * 2 , Math.PI * 2 / 360)
+	.onChange(() => {
+		jar.rotation.z = parameters.jarRotationZ;
+
+	});
+
+
+Jar
+	.add(parameters, 'jarRotationY', 0, Math.PI * 2 , Math.PI * 2 / 360)
+	.onChange(() => {
+		jar.rotation.y = parameters.jarRotationY;
+
+	});
+
+
+Jar
+	.add(parameters, 'jarRotationX', 0, Math.PI * 2 , Math.PI * 2 / 360)
+	.onChange(() => {
+		jar.rotation.x = parameters.jarRotationX;
 	});
 
 ////////////////////////////Directional Light 1/////////////////////////////////////////
