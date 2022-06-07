@@ -29,6 +29,10 @@ const parameters = {
     directionalLight2PosY : 0,
     directionalLight2PosZ : 0,
 
+    jarPosX: 0,
+    jarPosY: 0,
+    jarPosZ: 0,
+
 
 
 
@@ -55,9 +59,11 @@ const scene = new THREE.Scene()
  * Object
  */
 const loader = new GLTFLoader()
+let jar;
 loader.load( './jar.glb', function ( gltf ) {
-    gltf.scene.scale.set(12,12,12)
-    scene.add( gltf.scene );
+    jar = gltf.scene;
+    jar.scale.set(12,12,12)
+    scene.add(jar );
 
 } );
 
@@ -120,9 +126,6 @@ window.addEventListener('resize', () =>
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.set(parameters.cameraPositionX,  parameters.cameraPositionY, parameters.cameraPositionZ)
-// camera.position.x = parameters.cameraPositionX
-// camera.position.y = parameters.cameraPositionY
-// camera.position.z = parameters.cameraPositionZ
 scene.add(camera)
 
 // Controls
@@ -161,10 +164,46 @@ window.addEventListener('keydown', (event) =>
     }
 })
 
+
+
+
+
+
+const Jar = gui.addFolder("Jar")
+Jar
+    .add(parameters, 'jarPosX', -5, 5 ,0.01)
+    .onChange(() =>
+    {
+        jar.position.x = parameters.jarPosX
+
+
+    })
+
+Jar
+    .add(parameters, 'jarPosZ', -5, 5 ,0.01)
+    .onChange(() =>
+    {
+        jar.position.z = parameters.jarPosZ
+
+
+    })
+
+Jar
+    .add(parameters, 'jarPosY', -5, 5 ,0.01)
+    .onChange(() =>
+    {
+        jar.position.y = parameters.jarPosY
+
+
+    })
+
+
+
+
 ////////////////////////////Directional Light 1/////////////////////////////////////////
 const DirectionalLight1 = gui.addFolder("DirectionalLight 1 ")
 DirectionalLight1
-    .addColor(parameters, 'directionalLightColor1')
+    .addColor(parameters, 'directionalLightColor1', )
     .onChange(() =>
     {
         directionalLight1.color = new THREE.Color(parameters.directionalLightColor1)
