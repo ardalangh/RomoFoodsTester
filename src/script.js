@@ -10,20 +10,21 @@ import {AxesHelper} from 'three';
 
 
 
-let scene, camera, renderer, controls, light;
+let scene, camera, renderer, controls, light, jar;
 function init() {
 
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color(0xFAF9F6)
+	// scene.background = new THREE.Color(0xFAF9F6)
+	// scene.background = new THREE.Color(0xA3907D)
 
 
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
 	camera.position.set(0, 2.5, 2.5);
 
 
-	renderer = new THREE.WebGLRenderer();
+	renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 	renderer.toneMapping = THREE.ReinhardToneMapping
-	renderer.toneMappingExposure = 1.5;
+	renderer.toneMappingExposure = 7;
 	renderer.setSize(window.innerWidth, window.innerHeight);
 
 	document.body.appendChild(renderer.domElement);
@@ -44,22 +45,34 @@ function init() {
 
 
 
-	const hemiLight = new THREE.HemisphereLight(0xfdfbd3, 0x080820, 4.5);
-	scene.add(hemiLight);
+	// const hemiLight = new THREE.HemisphereLight(0xfdfbd3, 0x080820, 4.5);
+	// scene.add(hemiLight);
+
+	const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+	scene.add(ambient);
 
 
-	light = new THREE.SpotLight(0xfdfbd3,2);
-	light.position.set(-15,15,15);
-	light.shadow.mapSize.width = 1024*4;
-	light.shadow.mapSize.height = 1024*4;
+	light = new THREE.DirectionalLight(0xffffff,0.34);
+	light.position.set(1,0,3);
+	light.lookAt(0,0,0)
+	// light.shadow.mapSize.width = 1024*4;
+	// light.shadow.mapSize.height = 1024*4;
 	scene.add( light );
+
+
+
+	// light = new THREE.DirectionalLight(0xffffff,0.34);
+	// light.position.set(-15,0,15);
+	// light.shadow.mapSize.width = 1024*4;
+	// light.shadow.mapSize.height = 1024*4;
+	// scene.add( light );
 
 
 
 	const gltfLoader = new GLTFLoader();
 
 	gltfLoader.load('./jar.glb', 	function ( gltf ) {
-			const jar = gltf.scene;
+			jar = gltf.scene;
 			jar.position.set(0, -0.5, 0)
 			jar.traverse(n => {
 				if (n.isMesh) {
