@@ -14,14 +14,7 @@ let scene, camera, renderer, controls, light;
 function init() {
 
 	scene = new THREE.Scene();
-	scene.background = new THREE.CubeTextureLoader().setPath('./').load([
-		'posx.jpg',
-		'negx.jpg',
-		'posy.jpg',
-		'negy.jpg',
-		'posz.jpg',
-		'negz.jpg',
-	])
+	scene.background = new THREE.Color(0xFAF9F6)
 
 
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
@@ -30,8 +23,7 @@ function init() {
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.toneMapping = THREE.ReinhardToneMapping
-	renderer.toneMappingExposure = 1.3;
-	renderer.shadowMap.enabled = true;
+	renderer.toneMappingExposure = 1.5;
 	renderer.setSize(window.innerWidth, window.innerHeight);
 
 	document.body.appendChild(renderer.domElement);
@@ -52,16 +44,12 @@ function init() {
 
 
 
-
-
-	const hemiLight = new THREE.HemisphereLight(0xfdfbd3, 0x080820, 2);
+	const hemiLight = new THREE.HemisphereLight(0xfdfbd3, 0x080820, 4.5);
 	scene.add(hemiLight);
 
 
-	light = new THREE.SpotLight(0xfdfbd3,0.5);
-	light.position.set(-50,50,50);
-	light.castShadow = true;
-	light.shadow.bias = -0.0001;
+	light = new THREE.SpotLight(0xfdfbd3,2);
+	light.position.set(-15,15,15);
 	light.shadow.mapSize.width = 1024*4;
 	light.shadow.mapSize.height = 1024*4;
 	scene.add( light );
@@ -72,11 +60,10 @@ function init() {
 
 	gltfLoader.load('./jar.glb', 	function ( gltf ) {
 			const jar = gltf.scene;
-			jar.position.set(0, -0.2, 0)
+			jar.position.set(0, -0.5, 0)
 			jar.traverse(n => {
 				if (n.isMesh) {
 					n.castShadow = true;
-					n.receiveShadow = true;
 				}
 			})
 			jar.scale.set(20, 20, 20);
