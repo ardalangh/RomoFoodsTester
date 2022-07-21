@@ -5,10 +5,10 @@ import gsap from 'gsap';
 import * as dat from 'lil-gui';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 import {AxesHelper} from 'three';
+import ProgressBar from 'progressbar.js';
 
 
-
-function traverseMaterials (object, callback) {
+function traverseMaterials(object, callback) {
 	object.traverse((node) => {
 		if (!node.isMesh) return;
 		const materials = Array.isArray(node.material)
@@ -18,8 +18,8 @@ function traverseMaterials (object, callback) {
 	});
 }
 
-function updateTextureEncoding (content) {
-	const encoding = THREE.sRGBEncoding
+function updateTextureEncoding(content) {
+	const encoding = THREE.sRGBEncoding;
 
 	traverseMaterials(content, (material) => {
 		if (material.map) material.map.encoding = encoding;
@@ -27,7 +27,6 @@ function updateTextureEncoding (content) {
 		if (material.map || material.emissiveMap) material.needsUpdate = true;
 	});
 }
-
 
 const MAP_NAMES = [
 	'map',
@@ -40,86 +39,93 @@ const MAP_NAMES = [
 	'specularMap',
 ];
 
-
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
+let progress = 0;
+var bar = new ProgressBar.Circle(progressDiv, {
+	color: '#aaa',
+	// This has to be the same size as the maximum width to
+	// prevent clipping
+	strokeWidth: 4,
+	trailWidth: 1,
+	easing: 'easeInOut',
+	duration: 1400,
+	text: {
+		autoStyleContainer: false
+	},
+	from: { color: '#aaa', width: 1 },
+	to: { color: '#333', width: 4 },
+	// Set default step function for all animate calls
+	step: function(state, circle) {
+		circle.path.setAttribute('stroke', state.color);
+		circle.path.setAttribute('stroke-width', state.width);
+
+		var value = Math.round(circle.value() * 100);
+		if (value === 0) {
+			circle.setText('');
+		} else {
+			circle.setText(value);
+		}
+		if (value == 100) {
+			document.getElementById('progressDiv').style.display =  'none'
+		}
+
+
+	}
+});
+bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+bar.text.style.fontSize = '1rem';
+// Number from 0.0 to 1.0
 
 let scene, camera, renderer, controls, light, jar;
+
 function init() {
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
 	camera.position.set(0, 2.5, 2.5);
-
 
 	scene = new THREE.Scene();
 
 	// scene.background = new THREE.Color(0xA3907D)
 
-
-	const path = './env/'
-	const format = '.jpeg'
+	const path = './env/';
+	const format = '.jpeg';
 
 	const cubeMapURLs = [
 		path + 'posx' + format, path + 'negx' + format,
 		path + 'posy' + format, path + 'negy' + format,
-		path + 'posz' + format, path + 'negz' + format
+		path + 'posz' + format, path + 'negz' + format,
 	];
 
 	const envMap = new THREE.CubeTextureLoader().load(cubeMapURLs);
 	envMap.format = THREE.RGBAFormat;
 
-
-
-
-
-
-
-	renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+	renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
 	renderer.physicallyCorrectLights = true;
 
 	renderer.outputEncoding = THREE.sRGBEncoding;
-	renderer.setClearColor( 0x000000, 0 );
-	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setClearColor(0x000000, 0);
+	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(window.innerWidth, window.innerHeight);
-
-
 
 	document.body.appendChild(renderer.domElement);
 
-
-
 	controls = new OrbitControls(camera, renderer.domElement);
-
-
-
-
-
-
-
-
-
-
-
-
 
 	// const hemiLight = new THREE.HemisphereLight(0xfdfbd3, 0x080820, 4.5);
 	// scene.add(hemiLight);
 
 	const ambient = new THREE.AmbientLight(0xffffff, 0.3);
-	camera.add(ambient)
-	ambient.exposure = 1
+	camera.add(ambient);
+	ambient.exposure = 1;
 	scene.add(ambient);
 
-
-
-	light = new THREE.DirectionalLight(0xffffff,0.8 * Math.PI);
-	light.position.set(0.5, 0, 0.866)
-	camera.add(light)
-	light.exposure = 1
+	light = new THREE.DirectionalLight(0xffffff, 0.8 * Math.PI);
+	light.position.set(0.5, 0, 0.866);
+	camera.add(light);
+	light.exposure = 1;
 	// light.shadow.mapSize.width = 1024*4;
 	// light.shadow.mapSize.height = 1024*4;
-	scene.add( light );
-
-
+	scene.add(light);
 
 	// light = new THREE.DirectionalLight(0xffffff,0.34);
 	// light.position.set(-15,0,15);
@@ -127,14 +133,12 @@ function init() {
 	// light.shadow.mapSize.height = 1024*4;
 	// scene.add( light );
 
-
-
 	const gltfLoader = new GLTFLoader();
 
-	gltfLoader.load('./jar.glb', 	function ( gltf ) {
+	gltfLoader.load('./jar.glb', function (gltf) {
 			jar = gltf.scene;
-			jar.roughness = .2
-			jar.position.set(0, -0.5, 0)
+			jar.roughness = .2;
+			jar.position.set(0, -0.5, 0);
 			// jar.traverse(n => {
 			// 	if (n.isMesh) {
 			// 		n.castShadow = true;
@@ -143,42 +147,39 @@ function init() {
 			jar.scale.set(20, 20, 20);
 			updateTextureEncoding(jar);
 
-			traverseMaterials( jar, (material) => {
-				material.needsUpdate = true
-				material.envMap = envMap
+			traverseMaterials(jar, (material) => {
+				material.needsUpdate = true;
+				material.envMap = envMap;
 
-				MAP_NAMES.forEach( (map) => {
+				MAP_NAMES.forEach((map) => {
 
-					if (material[ map ]) material[ map ].dispose();
+					if (material[map]) material[map].dispose();
 
-				} );
+				});
 
-			} );
+			});
 
-
-			scene.add( gltf.scene );
+			scene.add(gltf.scene);
 		},
 		// called while loading is progressing
-		function ( xhr ) {
-			console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		function (xhr) {
+
+			bar.animate(xhr.loaded / 27118828);
+			console.log((xhr.loaded) + '% loaded');
 		},
 		// called when loading has errors
-		function ( error ) {
-			console.log( 'An error happened' );
-		}
+		function (error) {
+			console.log('An error happened');
+		},
 	);
-
-
 
 	animate();
 }
 
-
-
-
 function animate() {
-	renderer.render(scene,camera);
+	renderer.render(scene, camera);
 
+	// console.log(progress);
 	light.position.set(
 		camera.position.x + 10,
 		camera.position.y + 10,
@@ -187,9 +188,8 @@ function animate() {
 
 	requestAnimationFrame(animate);
 }
+
 init();
-
-
 
 /**
  * Base
