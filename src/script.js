@@ -8,24 +8,80 @@ import {AxesHelper} from 'three';
 
 
 
+function traverseMaterials (object, callback) {
+	object.traverse((node) => {
+		if (!node.isMesh) return;
+		const materials = Array.isArray(node.material)
+			? node.material
+			: [node.material];
+		materials.forEach(callback);
+	});
+}
+
+function updateTextureEncoding (content) {
+	const encoding = THREE.sRGBEncoding
+
+	traverseMaterials(content, (material) => {
+		if (material.map) material.map.encoding = encoding;
+		if (material.emissiveMap) material.emissiveMap.encoding = encoding;
+		if (material.map || material.emissiveMap) material.needsUpdate = true;
+	});
+}
+
+
+const MAP_NAMES = [
+	'map',
+	'aoMap',
+	'emissiveMap',
+	'glossinessMap',
+	'metalnessMap',
+	'normalMap',
+	'roughnessMap',
+	'specularMap',
+];
+
+
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 
 let scene, camera, renderer, controls, light, jar;
 function init() {
-
-	scene = new THREE.Scene();
-	// scene.background = new THREE.Color(0xFAF9F6)
-	// scene.background = new THREE.Color(0xA3907D)
-
-
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
 	camera.position.set(0, 2.5, 2.5);
 
 
+	scene = new THREE.Scene();
+
+	// scene.background = new THREE.Color(0xA3907D)
+
+
+	const path = './env/'
+	const format = '.jpeg'
+
+	const cubeMapURLs = [
+		path + 'posx' + format, path + 'negx' + format,
+		path + 'posy' + format, path + 'negy' + format,
+		path + 'posz' + format, path + 'negz' + format
+	];
+
+	const envMap = new THREE.CubeTextureLoader().load(cubeMapURLs);
+	envMap.format = THREE.RGBAFormat;
+
+
+
+
+
+
+
 	renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-	renderer.toneMapping = THREE.ReinhardToneMapping
-	renderer.toneMappingExposure = 7;
+	renderer.physicallyCorrectLights = true;
+
+	renderer.outputEncoding = THREE.sRGBEncoding;
+	renderer.setClearColor( 0x000000, 0 );
+	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize(window.innerWidth, window.innerHeight);
+
+
 
 	document.body.appendChild(renderer.domElement);
 
@@ -48,13 +104,17 @@ function init() {
 	// const hemiLight = new THREE.HemisphereLight(0xfdfbd3, 0x080820, 4.5);
 	// scene.add(hemiLight);
 
-	const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+	const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+	camera.add(ambient)
+	ambient.exposure = 1
 	scene.add(ambient);
 
 
-	light = new THREE.DirectionalLight(0xffffff,0.34);
-	light.position.set(1,0,3);
-	light.lookAt(0,0,0)
+
+	light = new THREE.DirectionalLight(0xffffff,0.8 * Math.PI);
+	light.position.set(0.5, 0, 0.866)
+	camera.add(light)
+	light.exposure = 1
 	// light.shadow.mapSize.width = 1024*4;
 	// light.shadow.mapSize.height = 1024*4;
 	scene.add( light );
@@ -73,13 +133,29 @@ function init() {
 
 	gltfLoader.load('./jar.glb', 	function ( gltf ) {
 			jar = gltf.scene;
+			jar.roughness = .2
 			jar.position.set(0, -0.5, 0)
-			jar.traverse(n => {
-				if (n.isMesh) {
-					n.castShadow = true;
-				}
-			})
+			// jar.traverse(n => {
+			// 	if (n.isMesh) {
+			// 		n.castShadow = true;
+			// 	}
+			// })
 			jar.scale.set(20, 20, 20);
+			updateTextureEncoding(jar);
+
+			traverseMaterials( jar, (material) => {
+				material.needsUpdate = true
+				material.envMap = envMap
+
+				MAP_NAMES.forEach( (map) => {
+
+					if (material[ map ]) material[ map ].dispose();
+
+				} );
+
+			} );
+
+
 			scene.add( gltf.scene );
 		},
 		// called while loading is progressing
