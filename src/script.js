@@ -1,10 +1,7 @@
 import './style.css';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import gsap from 'gsap';
-import * as dat from 'lil-gui';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
-import {AxesHelper} from 'three';
 import ProgressBar from 'progressbar.js';
 
 
@@ -39,9 +36,8 @@ const MAP_NAMES = [
 	'specularMap',
 ];
 
-const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+// const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-let progress = 0;
 var bar = new ProgressBar.Circle(progressDiv, {
 	color: '#aaa',
 	// This has to be the same size as the maximum width to
@@ -66,7 +62,7 @@ var bar = new ProgressBar.Circle(progressDiv, {
 		} else {
 			circle.setText(value);
 		}
-		if (value == 100) {
+		if (value === 100) {
 			document.getElementById('progressDiv').style.display =  'none'
 		}
 
@@ -114,15 +110,15 @@ function init() {
 	// const hemiLight = new THREE.HemisphereLight(0xfdfbd3, 0x080820, 4.5);
 	// scene.add(hemiLight);
 
-	const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+	const ambient = new THREE.AmbientLight(0xffffff, 0.9);
 	camera.add(ambient);
-	ambient.exposure = 1;
+	ambient.exposure = 0.8;
 	scene.add(ambient);
 
-	light = new THREE.DirectionalLight(0xffffff, 0.8 * Math.PI);
-	light.position.set(0.5, 0, 0.866);
+	light = new THREE.DirectionalLight(0xffffff, 0.34);
+	light.position.set(0.5, 0, -0.866);
 	camera.add(light);
-	light.exposure = 1;
+	light.exposure = 0.8;
 	// light.shadow.mapSize.width = 1024*4;
 	// light.shadow.mapSize.height = 1024*4;
 	scene.add(light);
@@ -164,12 +160,12 @@ function init() {
 		// called while loading is progressing
 		function (xhr) {
 
-			bar.animate(xhr.loaded / 27118828);
+			bar.animate(xhr.loaded / 6355260);
 			console.log((xhr.loaded) + '% loaded');
 		},
 		// called when loading has errors
 		function (error) {
-			console.log('An error happened');
+			console.log(error);
 		},
 	);
 
