@@ -12,8 +12,8 @@ body
 }
 
 body{
-    background-color: #f3f4f7;
-    background-image: linear-gradient(315deg, #f3f4f7 0%, #caccd1 74%);
+    background-image: linear-gradient(to bottom, #f1f1f1, #e6f2fc, #d0f6fb, #caf9e4, #e4f4c3);
+
 }
 
 .webgl
@@ -24,5 +24,13 @@ body{
     outline: none;
 }
 
+
+#progressDiv {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%)
+}
 
 /*# sourceMappingURL=main.css.map*/
