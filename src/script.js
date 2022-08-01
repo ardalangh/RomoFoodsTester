@@ -75,7 +75,7 @@ bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
 bar.text.style.fontSize = '1rem';
 // Number from 0.0 to 1.0
 
-let scene, camera, renderer, controls, light, jar;
+let scene, camera, renderer, controls, light, jar, mixer;
 
 function init() {
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
@@ -131,6 +131,18 @@ function init() {
 
 	gltfLoader.load('./jar.glb', function (gltf) {
 			jar = gltf.scene;
+
+			mixer = new THREE.AnimationMixer( gltf.scene );
+
+
+			gltf.animations.forEach( ( clip ) => {
+
+				mixer.clipAction( clip ).play();
+
+			} );
+
+
+
 			jar.roughness = .2;
 			jar.position.set(0, -0.5, 0);
 			jar.scale.set(20, 20, 20);
@@ -177,6 +189,9 @@ function animate() {
 		camera.position.y + 10,
 		camera.position.z + 10,
 	);
+
+
+	if ( mixer ) mixer.update( 0.005 );
 
 	requestAnimationFrame(animate);
 }
